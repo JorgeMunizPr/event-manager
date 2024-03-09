@@ -45,7 +45,7 @@ class EventController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(\App\Models\Event $event)
+    public function show(Event $event)
     {
         return $event;
     }
@@ -57,9 +57,18 @@ class EventController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Event $event)
     {
-        //
+        $event->update(
+            $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'description' => 'nullable|string',
+                'start_time' => 'sometimes|date',
+                'end_time' => 'sometimes|date|after:start_time'
+            ])
+        );
+
+        return $event;
     }
 
     /**
@@ -68,8 +77,10 @@ class EventController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Event $event)
     {
-        //
+        $event->delete();
+
+        return response(status: 404);
     }
 }

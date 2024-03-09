@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AttendeeResource;
+use App\Models\Attendee;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class AttendeeController extends Controller
@@ -12,9 +15,13 @@ class AttendeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Event $event)
     {
-        //
+        $attendees = $event->attendees()->latest();
+
+        return AttendeeResource::collection(
+            $attendees->paginate()
+        );
     }
 
     /**
@@ -23,9 +30,13 @@ class AttendeeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Event $event)
     {
-        //
+        $attendee = $event->attendees()->create([
+            'user_id' => 1
+        ]);
+
+        return new AttendeeResource($attendee);
     }
 
     /**
@@ -34,9 +45,9 @@ class AttendeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Event $event, Attendee $attendee)
     {
-        //
+        return new AttendeeResource($attendee);
     }
 
     /**
@@ -57,8 +68,10 @@ class AttendeeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(string $event, Attendee $attendee)
     {
-        //
+        $attendee->delete();
+
+        return response(status: 204);
     }
 }
